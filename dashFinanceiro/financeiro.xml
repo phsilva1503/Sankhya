@@ -4,8 +4,8 @@
   </prompt-parameters>
   <level id="0RB" description="HOME">
     <container orientacao="V" tamanhoRelativo="100">
-      <container orientacao="H" tamanhoRelativo="19.927162784305644">
-        <container orientacao="H" tamanhoRelativo="31.94159251654118">
+      <container orientacao="H" tamanhoRelativo="12.17564870259481">
+        <container orientacao="H" tamanhoRelativo="38.94616265750286">
           <container orientacao="H" tamanhoRelativo="95.5">
             <simple-value id="svl_2B9">
               <expression type="sql" data-source="MGEDS">
@@ -32,25 +32,24 @@ AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN]]>
                 </field>
               </metadata>
               <value-expression>
-                <![CDATA[<span style='font-size: 20px;'>
-                <b>FINANCEIRO - RECEBIDOS x PAGOS</b>
+                <![CDATA[<b>
+                <span style='font-family: Verdana, Geneva, sans-serif; font-size: 30px;'>Financeiro: Recebidos x Pagos<span style='color: #666666;'>
               </span>
-              <span style='color: #FFFFFF;'>---------</span>
-              <span style='color: #000066;'>
-                <span style='color: #0000FF; font-size: 12px;'>
-                  <b>Período: :P_PERIODO.INI até :P_PERIODO.FIN</b>
-                </span>
-              </span>]]>
-            </value-expression>
-            <on-click  navigate-to="14C"/>
-          </simple-value>
-        </container>
-      </container>
-      <container orientacao="H" tamanhoRelativo="69.06850849355982">
-        <container orientacao="H" tamanhoRelativo="215.5">
-          <simple-value id="svl_0TI">
-            <expression type="sql" data-source="MGEDS">
-              <![CDATA[SELECT
+            </span>
+          </b>
+          <span style='color: #000099;'>
+            <b>Período: :P_PERIODO.INI até :P_PERIODO.FIN</b>
+          </span>]]>
+        </value-expression>
+        <on-click  navigate-to="14C"/>
+      </simple-value>
+    </container>
+  </container>
+  <container orientacao="H" tamanhoRelativo="62.06393835259815">
+    <container orientacao="H" tamanhoRelativo="215.5">
+      <simple-value id="svl_0TI">
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT
     -- RECEITAS (somente centros de custo definidos)
     SUM(
         CASE 
@@ -103,35 +102,51 @@ AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN]]>
 FROM TGFFIN FIN
 WHERE FIN.PROVISAO <> 'S'
 AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN]]>
-            </expression>
-            <metadata>
-              <field name="TOTAL_RECEITAS" label="Receita" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
-              </field>
-              <field name="TOTAL_DESPESAS" label="Despesa" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
-              </field>
-              <field name="SALDO" label="SALDO" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
-              </field>
-            </metadata>
-            <value-expression>
-              <![CDATA[<span style='font-size: 14px;'>
-              <b>Total receita:</b>
-            </span>
-            <span style='font-size: 20px; color: #009900;'>$TOTAL_RECEITAS</span>
-            <span style='font-size: 14px;'>
-              <b>Total Despesa:</b>
-            </span>
-            <span style='font-size: 20px; color: #CC0000;'>$TOTAL_DESPESAS</span>
-            <b>Total Despesa:</b>
+        </expression>
+        <metadata>
+          <field name="TOTAL_RECEITAS" label="Receita" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+          </field>
+          <field name="TOTAL_DESPESAS" label="Despesa" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+          </field>
+          <field name="SALDO" label="SALDO" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+          </field>
+        </metadata>
+        <value-expression>
+          <![CDATA[<div style="
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+">
+          <span style="font-size: 16px; margin: 0; padding: 0;">
+            <b>Total Receitas:</b>
           </span>
-          <span style='font-size: 20px; color: #CC0000;'>$TOTAL_DESPESAS</span>]]>
-        </value-expression>
-        <on-click  navigate-to="1Z7"/>
-      </simple-value>
-    </container>
+          <span style="color: #009900; font-size: 18px; margin: 0; padding: 0;">
+            <b>$TOTAL_RECEITAS</b>
+          </span>
+          <span style="font-size: 16px; margin: 0; padding: 0;">
+        Total Despesas:
+    </span>
+          <span style="color: #CC0033; font-size: 18px; margin: 0; padding: 0;">
+            <b>$TOTAL_DESPESAS</b>
+          </span>
+          <span style="font-size: 16px; margin: 0; padding: 0;">
+            <b>Saldo:</b>
+          </span>
+          <span style="color: #0000CC; font-size: 18px; margin: 0; padding: 0;">
+            <b>$SALDO</b>
+          </span>
+        </div>]]>
+      </value-expression>
+      <on-click  navigate-to="1Z7"/>
+    </simple-value>
   </container>
 </container>
-<container orientacao="H" tamanhoRelativo="81.08293822579536">
-  <container orientacao="V" tamanhoRelativo="51.56232209372306">
+</container>
+<container orientacao="H" tamanhoRelativo="87.82435129740519">
+  <container orientacao="V" tamanhoRelativo="271">
     <container orientacao="V" tamanhoRelativo="232">
       <chart id="cht_02L" type="pizza">
         <title>
@@ -203,7 +218,7 @@ ORDER BY CATEGORIA
       </chart>
     </container>
   </container>
-  <container orientacao="V" tamanhoRelativo="49.44777891637795">
+  <container orientacao="V" tamanhoRelativo="215">
     <container orientacao="H" tamanhoRelativo="42.62029578485274">
       <container orientacao="H" tamanhoRelativo="103">
         <container orientacao="H" tamanhoRelativo="89">
@@ -332,7 +347,7 @@ ORDER BY ABS(SUM(FIN.VLRDESDOB))]]>
 <level id="227" description="RECEBIDOS">
   <container orientacao="V" tamanhoRelativo="100">
     <container orientacao="V" tamanhoRelativo="41.79728317659353">
-      <container orientacao="H" tamanhoRelativo="13.650013650013653">
+      <container orientacao="H" tamanhoRelativo="34.49125400344913">
         <container orientacao="H" tamanhoRelativo="50">
           <simple-value id="svl_09J">
             <title>
@@ -380,7 +395,7 @@ WHERE FIN.DHBAIXA BETWEEN TRUNC(SYSDATE, 'MM')
   </simple-value>
 </container>
 </container>
-<container orientacao="V" tamanhoRelativo="87.36008736008736">
+<container orientacao="V" tamanhoRelativo="66.5188470066519">
   <grid id="grd_233" useNewGrid="S">
     <expression type="sql" data-source="MGEDS">
       <![CDATA[SELECT 
