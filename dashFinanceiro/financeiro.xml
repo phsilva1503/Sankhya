@@ -1,0 +1,1124 @@
+<gadget >
+  <prompt-parameters>
+    <parameter  id="P_PERIODO" description="Período" metadata="datePeriod" required="true" keep-last="true" keep-date="false" show-inactives="false" label="P_PERIODO : Período" order="0"/>
+  </prompt-parameters>
+  <level id="0RB" description="HOME">
+    <container orientacao="V" tamanhoRelativo="100">
+      <container orientacao="H" tamanhoRelativo="19.927162784305644">
+        <container orientacao="H" tamanhoRelativo="31.94159251654118">
+          <container orientacao="H" tamanhoRelativo="95.5">
+            <simple-value id="svl_2B9">
+              <expression type="sql" data-source="MGEDS">
+                <![CDATA[SELECT
+    SUM(CASE WHEN FIN.RECDESP = 1  THEN FIN.VLRDESDOB ELSE 0 END) AS TOTAL_RECEITAS,
+    SUM(CASE WHEN FIN.RECDESP = -1  AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)THEN FIN.VLRDESDOB   ELSE 0 END) AS TOTAL_DESPESAS,
+    SUM(CASE WHEN FIN.RECDESP = 1  THEN FIN.VLRDESDOB ELSE 0 END)
+    -
+    SUM(CASE WHEN FIN.RECDESP = -1 THEN FIN.VLRDESDOB ELSE 0 END) AS SALDO
+
+    
+
+FROM TGFFIN FIN
+
+WHERE FIN.PROVISAO <> 'S'
+AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN]]>
+              </expression>
+              <metadata>
+                <field name="TOTAL_RECEITAS" label="TOTAL_RECEITAS" type="I" visible="true" useFooter="false">
+                </field>
+                <field name="TOTAL_DESPESAS" label="TOTAL_DESPESAS" type="I" visible="true" useFooter="false">
+                </field>
+                <field name="SALDO" label="SALDO" type="I" visible="true" useFooter="false">
+                </field>
+              </metadata>
+              <value-expression>
+                <![CDATA[<span style='font-size: 20px;'>
+                <b>FINANCEIRO - RECEBIDOS x PAGOS</b>
+              </span>
+              <span style='color: #FFFFFF;'>---------</span>
+              <span style='color: #000066;'>
+                <span style='color: #0000FF; font-size: 12px;'>
+                  <b>Período: :P_PERIODO.INI até :P_PERIODO.FIN</b>
+                </span>
+              </span>]]>
+            </value-expression>
+            <on-click  navigate-to="14C"/>
+          </simple-value>
+        </container>
+      </container>
+      <container orientacao="H" tamanhoRelativo="69.06850849355982">
+        <container orientacao="H" tamanhoRelativo="215.5">
+          <simple-value id="svl_0TI">
+            <expression type="sql" data-source="MGEDS">
+              <![CDATA[SELECT
+    -- RECEITAS (somente centros de custo definidos)
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = 1
+             AND FIN.CODCENCUS IN (
+                '103000',
+                '114000',
+                '0201001','0201002','0201003','0201004','0201005',
+                '0201007','0201009','0201010','0201011'
+             )
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS TOTAL_RECEITAS,
+
+    -- DESPESAS (somente tipos de título definidos)
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = -1
+             AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS TOTAL_DESPESAS,
+
+    -- SALDO = RECEITAS - DESPESAS
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = 1
+             AND FIN.CODCENCUS IN (
+                '103000',
+                '114000',
+                '0201001','0201002','0201003','0201004','0201005',
+                '0201007','0201009','0201010','0201011'
+             )
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    )
+    -
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = -1
+             AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS SALDO
+
+FROM TGFFIN FIN
+WHERE FIN.PROVISAO <> 'S'
+AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN]]>
+            </expression>
+            <metadata>
+              <field name="TOTAL_RECEITAS" label="Receita" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+              </field>
+              <field name="TOTAL_DESPESAS" label="Despesa" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+              </field>
+              <field name="SALDO" label="SALDO" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+              </field>
+            </metadata>
+            <value-expression>
+              <![CDATA[<span style='font-size: 14px;'>
+              <b>Total receita:</b>
+            </span>
+            <span style='font-size: 20px; color: #009900;'>$TOTAL_RECEITAS</span>
+            <span style='font-size: 14px;'>
+              <b>Total Despesa:</b>
+            </span>
+            <span style='font-size: 20px; color: #CC0000;'>$TOTAL_DESPESAS</span>
+            <b>Total Despesa:</b>
+          </span>
+          <span style='font-size: 20px; color: #CC0000;'>$TOTAL_DESPESAS</span>]]>
+        </value-expression>
+        <on-click  navigate-to="1Z7"/>
+      </simple-value>
+    </container>
+  </container>
+</container>
+<container orientacao="H" tamanhoRelativo="81.08293822579536">
+  <container orientacao="V" tamanhoRelativo="51.56232209372306">
+    <container orientacao="V" tamanhoRelativo="232">
+      <chart id="cht_02L" type="pizza">
+        <title>
+          <![CDATA[<span style='color: #006600;'>RECEBIMENTO POR CENTRO DE CUSTO</span>]]>
+        </title>
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT
+    CASE
+        WHEN CUS.CODCENCUS = '103000' THEN CUS.DESCRCENCUS
+        WHEN CUS.CODCENCUS = '114000' THEN CUS.DESCRCENCUS
+        WHEN CUS.CODCENCUS IN (
+            '0201001','0201002','0201003','0201004','0201005',
+            '0201007','0201009','0201010','0201011'
+        ) THEN 'LOJAS'
+    END AS CATEGORIA,
+    SUM(FIN.VLRDESDOB) AS TOTAL
+FROM TGFFIN FIN
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+AND FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+  AND FIN.PROVISAO <> 'S'
+  AND CUS.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011'
+  )
+GROUP BY
+    CASE
+        WHEN CUS.CODCENCUS = '103000' THEN CUS.DESCRCENCUS
+        WHEN CUS.CODCENCUS = '114000' THEN CUS.DESCRCENCUS
+        WHEN CUS.CODCENCUS IN (
+            '0201001','0201002','0201003','0201004','0201005',
+            '0201007','0201009','0201010','0201011'
+        ) THEN 'LOJAS'
+    END
+ORDER BY CATEGORIA
+
+
+
+/*
+02.01.001 - LOJA SAMS GRUTA
+02.01.002 - LOJA AV JATIUCA
+02.01.003 - LOJA CENTRO 1 - BOA VISTA
+02.01.004 - LOJA SHOPPING PATIO
+02.01.005 - LOJA ARAPIRACA 1 - PRACA MANO
+02.01.007 - LOJA MACEIO SHOPPING
+02.01.009 - LOJA CENTRO 4 - AV MOREIRA E LI
+02.01.010 - LOJA CENTRO 3 - RUA DO LIVRAMB
+02.01.011 - LOJA PARQUE SHOPPING
+
+
+
+
+*/]]>
+        </expression>
+        <metadata>
+          <field name="CATEGORIA" label="C. Resutado" type="S" visible="true" useFooter="false">
+          </field>
+          <field name="TOTAL" label="Total" type="F" visible="true" useFooter="false">
+          </field>
+        </metadata>
+        <series>
+          <serie type="pizza">
+            <field>TOTAL</field>
+            <nameField>CATEGORIA</nameField>
+            <on-click  navigate-to="227"/>
+          </serie>
+        </series>
+      </chart>
+    </container>
+  </container>
+  <container orientacao="V" tamanhoRelativo="49.44777891637795">
+    <container orientacao="H" tamanhoRelativo="42.62029578485274">
+      <container orientacao="H" tamanhoRelativo="103">
+        <container orientacao="H" tamanhoRelativo="89">
+          <chart id="cht_3BL" type="pizza" tamTexto="12">
+            <title>
+              <![CDATA[<span style='color: #FF0000;'>PAGOS POR CENTRO DE RESULTADO</span>]]>
+            </title>
+            <expression type="sql" data-source="MGEDS">
+              <![CDATA[SELECT 
+    CATEGORIA,
+    TOTAL
+FROM (
+
+    /* TOP 5 */
+    SELECT 
+        CENTROCUSTO AS CATEGORIA,
+        TOTAL
+    FROM (
+            SELECT 
+                BASE.CENTROCUSTO,
+                BASE.TOTAL,
+                ROW_NUMBER() OVER (ORDER BY ABS(BASE.TOTAL) DESC) AS RN
+            FROM (
+                    /* BASE */
+                    SELECT 
+                        CUS.DESCRCENCUS AS CENTROCUSTO,
+                        SUM(FIN.VLRDESDOB) AS TOTAL
+                    FROM TGFFIN FIN
+                    LEFT JOIN TGFNAT NAT ON NAT.CODNAT = FIN.CODNAT
+                    INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+                    WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+                      AND FIN.PROVISAO <> 'S'
+                      AND FIN.RECDESP = -1
+                      AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)   -- ¿ filtro adicionado
+                    GROUP BY CUS.DESCRCENCUS
+                ) BASE
+        )
+    WHERE RN <= 5
+
+    UNION ALL
+
+    /* OUTROS */
+    SELECT 
+        'OUTROS' AS CATEGORIA,
+        SUM(TOTAL) AS TOTAL
+    FROM (
+            SELECT 
+                BASE.CENTROCUSTO,
+                BASE.TOTAL,
+                ROW_NUMBER() OVER (ORDER BY ABS(BASE.TOTAL) DESC) AS RN
+            FROM (
+                    /* BASE */
+                    SELECT 
+                        CUS.DESCRCENCUS AS CENTROCUSTO,
+                        SUM(FIN.VLRDESDOB) AS TOTAL
+                    FROM TGFFIN FIN
+                    LEFT JOIN TGFNAT NAT ON NAT.CODNAT = FIN.CODNAT
+                    INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+                    WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+                      AND FIN.PROVISAO <> 'S'
+                      AND FIN.RECDESP = -1
+                      AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)   -- ¿ filtro adicionado
+                    GROUP BY CUS.DESCRCENCUS
+                ) BASE
+        )
+    WHERE RN > 5
+    HAVING SUM(TOTAL) IS NOT NULL
+)]]>
+            </expression>
+            <metadata>
+              <field name="CATEGORIA" label="CATEGORIA" type="S" visible="true" useFooter="false">
+              </field>
+              <field name="TOTAL" label="TOTAL" type="F" visible="true" useFooter="false">
+              </field>
+            </metadata>
+            <series>
+              <serie type="pizza">
+                <field>TOTAL</field>
+                <nameField>CATEGORIA</nameField>
+                <on-click  navigate-to="3HV"/>
+              </serie>
+            </series>
+          </chart>
+        </container>
+      </container>
+    </container>
+    <container orientacao="V" tamanhoRelativo="58.38980522524827">
+      <container orientacao="V" tamanhoRelativo="42.97520661157025">
+        <container orientacao="V" tamanhoRelativo="78">
+          <grid id="grd_1U5" useNewGrid="S">
+            <title>
+              <![CDATA[PAGOS POR NATUREZA]]>
+            </title>
+            <expression type="sql" data-source="MGEDS">
+              <![CDATA[SELECT 
+
+    NAT.DESCRNAT,
+    SUM(FIN.VLRDESDOB) AS TOTAL
+
+FROM TGFFIN FIN
+INNER JOIN TGFNAT NAT 
+       ON NAT.CODNAT = FIN.CODNAT
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+  AND FIN.PROVISAO <> 'S'
+  AND FIN.RECDESP = -1
+  AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+
+GROUP BY NAT.DESCRNAT
+ORDER BY ABS(SUM(FIN.VLRDESDOB))]]>
+            </expression>
+            <metadata>
+              <field name="DESCRNAT" label="Natureza" type="S" visible="true" useFooter="false">
+              </field>
+              <field name="TOTAL" label="Total" type="I" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+              </field>
+            </metadata>
+          </grid>
+        </container>
+      </container>
+    </container>
+  </container>
+</container>
+</container>
+</level>
+<level id="227" description="RECEBIDOS">
+  <container orientacao="V" tamanhoRelativo="100">
+    <container orientacao="V" tamanhoRelativo="41.79728317659353">
+      <container orientacao="H" tamanhoRelativo="13.650013650013653">
+        <container orientacao="H" tamanhoRelativo="50">
+          <simple-value id="svl_09J">
+            <title>
+              <![CDATA[<span style='font-size: 22px;'>
+              <b>RECEBIDOS  <span style='color: #000099;'> :P_PERIODO.INI até :P_PERIODO.FIN</span>
+            </b>
+          </span>]]>
+        </title>
+      </simple-value>
+    </container>
+    <container orientacao="H" tamanhoRelativo="50">
+      <simple-value id="svl_1B2">
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT 
+    SUM(FIN.VLRDESDOB) AS TOTAL_VLRDESDOB
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT
+WHERE FIN.DHBAIXA BETWEEN TRUNC(SYSDATE, 'MM')
+                       AND LAST_DAY(SYSDATE)
+    AND FIN.PROVISAO <> 'S'
+    AND FIN.RECDESP = 1
+    AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')]]>
+        </expression>
+        <metadata>
+          <field name="TOTAL_VLRDESDOB" label="TOTAL_VLRDESDOB" type="I" visible="true" useFooter="false" mask="R$ #.##0,00">
+          </field>
+        </metadata>
+        <value-expression>
+          <![CDATA[<div style='text-align: right;'>
+          <span style='font-size: 22px;'>
+            <b>ACUMULADO MÊS:</b>
+          </span>
+          <b>
+          <span style='font-size: 22px; color: #006600;'>$TOTAL_VLRDESDOB</span>
+        </b>
+      </div>]]>
+    </value-expression>
+  </simple-value>
+</container>
+</container>
+<container orientacao="V" tamanhoRelativo="87.36008736008736">
+  <grid id="grd_233" useNewGrid="S">
+    <expression type="sql" data-source="MGEDS">
+      <![CDATA[SELECT 
+    FIN.NUFIN,
+    FIN.DHBAIXA,
+    FIN.CODNAT,
+    N.DESCRNAT AS NOME_NATUREZA,
+    FIN.VLRDESDOB,
+    FIN.RECDESP,
+    FIN.PROVISAO,
+    FIN.CODCENCUS,
+    FIN.CODPARC,
+    PAR.NOMEPARC,
+    CUS.DESCRCENCUS,
+    
+    CASE 
+        WHEN FIN.RECDESP = 1 THEN  'RECEITA'
+        WHEN FIN.RECDESP = -1 THEN 'DESPESA'
+        ELSE 'OUTRO'
+    
+    END AS TIPO_MOV
+
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N ON N.CODNAT = FIN.CODNAT
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = FIN.CODPARC
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+        AND  FIN.PROVISAO <> 'S'
+        AND FIN.RECDESP =  1
+        AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')]]>
+    </expression>
+    <metadata>
+      <field name="NUFIN" label="NUFIN" type="I" visible="true" useFooter="false">
+      </field>
+      <field name="DHBAIXA" label="Dt. Baixa" type="D" visible="true" useFooter="false">
+      </field>
+      <field name="CODNAT" label="Cod. Nat" type="I" visible="true" useFooter="false">
+      </field>
+      <field name="NOME_NATUREZA" label="Natureza" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="VLRDESDOB" label="Valor" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+      </field>
+      <field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false">
+      </field>
+      <field name="PROVISAO" label="PROVISAO" type="S" visible="false" useFooter="false">
+      </field>
+      <field name="CODCENCUS" label="Cod. Result." type="I" visible="true" useFooter="false">
+      </field>
+      <field name="CODPARC" label="Cod. Parc" type="I" visible="true" useFooter="false">
+      </field>
+      <field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="DESCRCENCUS" label="C. Resultado" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="TIPO_MOV" label="Tipo Mov." type="S" visible="true" useFooter="false">
+      </field>
+    </metadata>
+    <on-click-launcher  resource-id="br.com.sankhya.fin.cad.movimentacaoFinanceira">
+      <NUFIN>$NUFIN</NUFIN>
+    </on-click-launcher>
+  </grid>
+</container>
+</container>
+<container orientacao="H" tamanhoRelativo="59.212817833507486">
+  <container orientacao="H" tamanhoRelativo="29.209142112367918">
+    <grid id="grd_3JO" useNewGrid="S">
+      <title>
+        <![CDATA[<span style='color: #006600; font-size: 16px;'>RECEBIDOS POR CENTRO DE RESULTADO</span>]]>
+      </title>
+      <expression type="sql" data-source="MGEDS">
+        <![CDATA[SELECT 
+    
+    SUM(FIN.VLRDESDOB) AS VALOR,
+    CUS.DESCRCENCUS
+   
+
+FROM TGFFIN FIN
+INNER JOIN TGFNAT N ON N.CODNAT = FIN.CODNAT
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = FIN.CODPARC
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+        --WHERE FIN.DHBAIXA = DATE '2025-12-01'
+        AND  FIN.PROVISAO <> 'S'
+        AND  FIN.RECDESP = 1
+        AND  FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')
+
+GROUP BY CUS.DESCRCENCUS
+ORDER BY VALOR DESC]]>
+      </expression>
+      <metadata>
+        <field name="VALOR" label="Valor" type="I" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+        </field>
+        <field name="DESCRCENCUS" label="C. Result." type="S" visible="true" useFooter="false">
+        </field>
+      </metadata>
+    </grid>
+  </container>
+  <container orientacao="H" tamanhoRelativo="71.8009588977331">
+    <container orientacao="H" tamanhoRelativo="50.078369905956116">
+      <grid id="grd_0AW" useNewGrid="S">
+        <title>
+          <![CDATA[<span style='color: #006600; font-size: 12px;'>RECEBIDOS POR FORMA DE PGTO E CENTRO DE RESULTADO</span>]]>
+        </title>
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT 
+    FIN.NUFIN,
+    FIN.CODTIPTIT,            -- CÓDIGO DA FORMA DE PAGAMENTO
+    TIT.DESCRTIPTIT AS FORMA_PAGAMENTO,   -- NOME DA FORMA DE PAGAMENTO
+    CUS.DESCRCENCUS,
+    FIN.DHBAIXA,
+    FIN.CODNAT,
+    N.DESCRNAT AS NOME_NATUREZA,
+    FIN.VLRDESDOB,
+    FIN.RECDESP,
+    FIN.PROVISAO,
+    FIN.CODCENCUS,
+    FIN.CODPARC,
+    PAR.NOMEPARC,
+    
+
+    
+    
+
+    CASE 
+        WHEN FIN.RECDESP = 1 THEN 'RECEITA'
+        WHEN FIN.RECDESP = -1 THEN 'DESPESA'
+        ELSE 'OUTRO'
+    END AS TIPO_MOV
+
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT   -- << JOIN ADICIONADO
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+--WHERE FIN.DHBAIXA = DATE '2025-12-11'
+  AND FIN.PROVISAO <> 'S'
+  AND FIN.RECDESP = 1
+  AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')]]>
+        </expression>
+        <metadata>
+          <field name="NUFIN" label="NUFIN" type="I" visible="true" useFooter="false">
+          </field>
+          <field name="CODTIPTIT" label="CODTIPTIT" type="I" visible="false" useFooter="false">
+          </field>
+          <field name="FORMA_PAGAMENTO" label="Forma Pgto." type="S" visible="true" useFooter="false">
+          </field>
+          <field name="DESCRCENCUS" label="C. Result" type="S" visible="true" useFooter="false">
+          </field>
+          <field name="DHBAIXA" label="Dt. Baixa" type="D" visible="true" useFooter="false">
+          </field>
+          <field name="CODNAT" label="Cod. Nat." type="I" visible="false" useFooter="false">
+          </field>
+          <field name="NOME_NATUREZA" label="Natureza" type="S" visible="true" useFooter="false">
+          </field>
+          <field name="VLRDESDOB" label="Valor" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+          </field>
+          <field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false">
+          </field>
+          <field name="PROVISAO" label="PROVISAO" type="S" visible="false" useFooter="false">
+          </field>
+          <field name="CODCENCUS" label="CODCENCUS" type="I" visible="false" useFooter="false">
+          </field>
+          <field name="CODPARC" label="Cod. Parc." type="I" visible="true" useFooter="false">
+          </field>
+          <field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false">
+          </field>
+          <field name="TIPO_MOV" label="Tipo Mov." type="S" visible="false" useFooter="false">
+          </field>
+        </metadata>
+      </grid>
+    </container>
+    <container orientacao="H" tamanhoRelativo="50">
+      <grid id="grd_1MP" useNewGrid="S">
+        <title>
+          <![CDATA[<span style='color: #006600; font-size: 16px;'>RECEBIDOS POR FORMA DE PGTO.</span>]]>
+        </title>
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT 
+    FIN.CODTIPTIT,
+    TIT.DESCRTIPTIT AS FORMA_PAGAMENTO,
+    SUM(FIN.VLRDESDOB) AS TOTAL_VLRDESDOB
+FROM TGFFIN FIN
+INNER JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+    AND FIN.PROVISAO <> 'S'
+    AND FIN.RECDESP = 1
+    AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')
+  
+GROUP BY 
+    FIN.CODTIPTIT,
+    TIT.DESCRTIPTIT
+ORDER BY 
+    TIT.DESCRTIPTIT]]>
+        </expression>
+        <metadata>
+          <field name="CODTIPTIT" label="CODTIPTIT" type="I" visible="false" useFooter="false">
+          </field>
+          <field name="FORMA_PAGAMENTO" label="Forma Pgto." type="S" visible="true" useFooter="false">
+          </field>
+          <field name="TOTAL_VLRDESDOB" label="Total" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+          </field>
+        </metadata>
+      </grid>
+    </container>
+  </container>
+</container>
+</container>
+</level>
+<level id="3HV" description="PAGOS">
+  <container orientacao="V" tamanhoRelativo="100">
+    <container orientacao="V" tamanhoRelativo="39.12071535022355">
+      <container orientacao="H" tamanhoRelativo="15.559013114025339">
+        <container orientacao="H" tamanhoRelativo="50">
+          <simple-value id="svl_1KI">
+            <title>
+              <![CDATA[<span style='font-size: 22px;'>
+              <b>RECEBIDOS  <span style='color: #000099;'> :P_PERIODO.INI até :P_PERIODO.FIN</span>
+            </b>
+          </span>]]>
+        </title>
+      </simple-value>
+    </container>
+    <container orientacao="H" tamanhoRelativo="50">
+      <simple-value id="svl_1M1">
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT 
+    SUM(FIN.VLRDESDOB) AS TOTAL_VLRDESDOB
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT
+WHERE FIN.DHBAIXA BETWEEN TRUNC(SYSDATE, 'MM')
+                       AND LAST_DAY(SYSDATE)
+    AND FIN.PROVISAO <> 'S'
+    AND FIN.RECDESP = -1
+    AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+    /*AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')*/]]>
+        </expression>
+        <metadata>
+          <field name="TOTAL_VLRDESDOB" label="TOTAL_VLRDESDOB" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+          </field>
+        </metadata>
+        <value-expression>
+          <![CDATA[<div style='text-align: right;'>
+          <span style='font-size: 22px;'>
+            <b>ACUMULADO MÊS:</b>
+          </span>
+          <b>
+          <span style='font-size: 22px; color: #FF0000;'>$TOTAL_VLRDESDOB</span>
+        </b>
+      </div>]]>
+    </value-expression>
+  </simple-value>
+</container>
+</container>
+<container orientacao="V" tamanhoRelativo="85.45108789607566">
+  <grid id="grd_02D" useNewGrid="S">
+    <title>
+      <![CDATA[RESUMO PAGOS]]>
+    </title>
+    <expression type="sql" data-source="MGEDS">
+      <![CDATA[SELECT 
+    FIN.NUFIN,
+    FIN.DHBAIXA,
+    FIN.CODNAT,
+    N.DESCRNAT AS NOME_NATUREZA,
+    FIN.VLRDESDOB,
+    FIN.RECDESP,
+    FIN.PROVISAO,
+    FIN.CODCENCUS,
+    FIN.CODPARC,
+    PAR.NOMEPARC,
+    CUS.DESCRCENCUS,
+    TIT.DESCRTIPTIT,
+    
+    CASE 
+        WHEN FIN.RECDESP = 1 THEN  'RECEITA'
+        WHEN FIN.RECDESP = -1 THEN 'DESPESA'
+        ELSE 'OUTRO'
+    
+    END AS TIPO_MOV
+
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N ON N.CODNAT = FIN.CODNAT
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = FIN.CODPARC
+INNER JOIN TGFTIT TIT ON FIN.CODTIPTIT = TIT.CODTIPTIT
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+        AND  FIN.PROVISAO <> 'S'
+        AND FIN.RECDESP =  -1
+        AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)]]>
+    </expression>
+    <metadata>
+      <field name="NUFIN" label="NUFIN" type="I" visible="true" useFooter="false">
+      </field>
+      <field name="DHBAIXA" label="Dt. Baixa" type="D" visible="true" useFooter="false">
+      </field>
+      <field name="CODNAT" label="CODNAT" type="I" visible="false" useFooter="false">
+      </field>
+      <field name="NOME_NATUREZA" label="Natureza" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="VLRDESDOB" label="Valor" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+      </field>
+      <field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false">
+      </field>
+      <field name="PROVISAO" label="PROVISAO" type="S" visible="false" useFooter="false">
+      </field>
+      <field name="CODCENCUS" label="Cod. Resultado" type="I" visible="true" useFooter="false">
+      </field>
+      <field name="CODPARC" label="Cod. Parc." type="I" visible="true" useFooter="false">
+      </field>
+      <field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="DESCRCENCUS" label="C. Result" type="S" visible="true" useFooter="false">
+      </field>
+      <field name="DESCRTIPTIT" label="Forma Pgto." type="S" visible="true" useFooter="false">
+      </field>
+      <field name="TIPO_MOV" label="TIPO_MOV" type="S" visible="false" useFooter="false">
+      </field>
+    </metadata>
+    <on-click-launcher  resource-id="br.com.sankhya.fin.cad.movimentacaoFinanceira">
+      <NUFIN>$NUFIN</NUFIN>
+    </on-click-launcher>
+  </grid>
+</container>
+</container>
+<container orientacao="H" tamanhoRelativo="61.88938565987747">
+  <container orientacao="H" tamanhoRelativo="50.04045307443366">
+    <container orientacao="H" tamanhoRelativo="32.02343843153287">
+      <grid id="grd_0CA" useNewGrid="S">
+        <title>
+          <![CDATA[<span style='color: #FF0000; font-size: 16px;'>PAGOS POR CENTRO DE RESULTADO</span>]]>
+        </title>
+        <expression type="sql" data-source="MGEDS">
+          <![CDATA[SELECT 
+    
+    CUS.DESCRCENCUS,
+    SUM(FIN.VLRDESDOB) AS VALOR
+    
+   
+
+FROM TGFFIN FIN
+INNER JOIN TGFNAT N ON N.CODNAT = FIN.CODNAT
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR ON PAR.CODPARC = FIN.CODPARC
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+        --WHERE FIN.DHBAIXA = DATE '2025-12-01'
+        AND  FIN.PROVISAO <> 'S'
+        AND  FIN.RECDESP = -1
+        AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+       /* AND  FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')*/
+
+GROUP BY CUS.DESCRCENCUS
+ORDER BY VALOR DESC]]>
+        </expression>
+        <metadata>
+          <field name="DESCRCENCUS" label="C. Resultado" type="S" visible="true" useFooter="false">
+          </field>
+          <field name="VALOR" label="Valor" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+          </field>
+        </metadata>
+      </grid>
+    </container>
+    <container orientacao="H" tamanhoRelativo="68.98666257856814">
+      <container orientacao="H" tamanhoRelativo="50">
+        <grid id="grd_0KC" useNewGrid="S">
+          <title>
+            <![CDATA[<span style='color: #FF0000; font-size: 12px;'>RECEBIDOS POR FORMA DE PGTO E CENTRO DE RESULTADO</span>]]>
+          </title>
+          <expression type="sql" data-source="MGEDS">
+            <![CDATA[SELECT 
+    FIN.NUFIN,
+    FIN.CODTIPTIT,            -- CÓDIGO DA FORMA DE PAGAMENTO
+    FIN.VLRDESDOB,
+    TIT.DESCRTIPTIT AS FORMA_PAGAMENTO,   -- NOME DA FORMA DE PAGAMENTO
+    CUS.DESCRCENCUS,
+    FIN.DHBAIXA,
+    FIN.CODNAT,
+    N.DESCRNAT AS NOME_NATUREZA,
+    FIN.RECDESP,
+    FIN.PROVISAO,
+    FIN.CODCENCUS,
+    FIN.CODPARC,
+    PAR.NOMEPARC,
+    
+
+    
+    
+
+    CASE 
+        WHEN FIN.RECDESP = 1 THEN 'RECEITA'
+        WHEN FIN.RECDESP = -1 THEN 'DESPESA'
+        ELSE 'OUTRO'
+    END AS TIPO_MOV
+
+FROM TGFFIN FIN
+LEFT JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT   -- << JOIN ADICIONADO
+
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+--WHERE FIN.DHBAIXA = DATE '2025-12-11'
+    AND FIN.PROVISAO <> 'S'
+    AND FIN.RECDESP = -1
+    AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+
+  
+/*AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')*/]]>
+          </expression>
+          <metadata>
+            <field name="NUFIN" label="NUFIN" type="I" visible="true" useFooter="false">
+            </field>
+            <field name="CODTIPTIT" label="CODTIPTIT" type="I" visible="false" useFooter="false">
+            </field>
+            <field name="VLRDESDOB" label="Valor" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+            </field>
+            <field name="FORMA_PAGAMENTO" label="Forma Pgto." type="S" visible="true" useFooter="false">
+            </field>
+            <field name="DESCRCENCUS" label="C. Result." type="S" visible="true" useFooter="false">
+            </field>
+            <field name="DHBAIXA" label="Dt. Baixa" type="D" visible="true" useFooter="false">
+            </field>
+            <field name="CODNAT" label="Cod. Nat" type="I" visible="false" useFooter="false">
+            </field>
+            <field name="NOME_NATUREZA" label="NOME_NATUREZA" type="S" visible="true" useFooter="false">
+            </field>
+            <field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false">
+            </field>
+            <field name="PROVISAO" label="PROVISAO" type="S" visible="false" useFooter="false">
+            </field>
+            <field name="CODCENCUS" label="CODCENCUS" type="I" visible="false" useFooter="false">
+            </field>
+            <field name="CODPARC" label="Cod. Parceiro" type="I" visible="true" useFooter="false">
+            </field>
+            <field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false">
+            </field>
+            <field name="TIPO_MOV" label="Tipo Mov." type="S" visible="true" useFooter="false">
+            </field>
+          </metadata>
+        </grid>
+      </container>
+      <container orientacao="H" tamanhoRelativo="50">
+        <grid id="grd_0N8" useNewGrid="S">
+          <title>
+            <![CDATA[<span style='color: #FF0000; font-size: 16px;'>RECEBIDOS POR FORMA DE PGTO.</span>]]>
+          </title>
+          <expression type="sql" data-source="MGEDS">
+            <![CDATA[SELECT 
+    FIN.CODTIPTIT,
+    TIT.DESCRTIPTIT AS FORMA_PAGAMENTO,
+    SUM(FIN.VLRDESDOB) AS TOTAL_VLRDESDOB
+FROM TGFFIN FIN
+INNER JOIN TGFNAT N       ON N.CODNAT       = FIN.CODNAT
+INNER JOIN TSICUS CUS    ON CUS.CODCENCUS  = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR    ON PAR.CODPARC    = FIN.CODPARC
+INNER JOIN TGFTIT TIT    ON FIN.CODTIPTIT  = TIT.CODTIPTIT
+WHERE FIN.DHBAIXA BETWEEN :P_PERIODO.INI AND :P_PERIODO.FIN
+    AND FIN.PROVISAO <> 'S'
+    AND FIN.RECDESP = -1
+    AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+    /*AND FIN.CODCENCUS IN (
+        '103000',
+        '114000',
+        '0201001','0201002','0201003','0201004','0201005',
+        '0201007','0201009','0201010','0201011')*/
+  
+GROUP BY 
+    FIN.CODTIPTIT,
+    TIT.DESCRTIPTIT
+ORDER BY 
+    TIT.DESCRTIPTIT]]>
+          </expression>
+          <metadata>
+            <field name="CODTIPTIT" label="CODTIPTIT" type="I" visible="true" useFooter="false">
+            </field>
+            <field name="FORMA_PAGAMENTO" label="Forma Pgto." type="S" visible="true" useFooter="false">
+            </field>
+            <field name="TOTAL_VLRDESDOB" label="Total" type="F" visible="true" useFooter="SUM" mask="R$ #.##0,00">
+            </field>
+          </metadata>
+        </grid>
+      </container>
+    </container>
+  </container>
+</container>
+</container>
+</level>
+<level id="1Z7" description="COMPARATIVO">
+  <container orientacao="V" tamanhoRelativo="100">
+    <container orientacao="V" tamanhoRelativo="18.42192415962908">
+      <simple-value id="svl_10X">
+        <value-expression>
+          <![CDATA[<span style='font-size: 20px;'>
+          <b>Comparativo Último Trimestre</b>
+        </span>]]>
+      </value-expression>
+    </simple-value>
+  </container>
+  <container orientacao="V" tamanhoRelativo="82.58817685047194">
+    <chart id="cht_20S" type="column" nroColuna="6">
+      <title>
+        <![CDATA[Mês Referência]]>
+      </title>
+      <expression type="sql" data-source="MGEDS">
+        <![CDATA[SELECT
+    TRUNC(FIN.DHBAIXA, 'MM') AS MES_REFERENCIA,
+
+    -- RECEITAS
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = 1
+             AND FIN.CODCENCUS IN (
+                '103000',
+                '114000',
+                '0201001','0201002','0201003','0201004','0201005',
+                '0201007','0201009','0201010','0201011'
+             )
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS TOTAL_RECEITAS,
+
+    -- DESPESAS
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = -1
+             AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS TOTAL_DESPESAS,
+
+    -- SALDO
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = 1
+             AND FIN.CODCENCUS IN (
+                '103000',
+                '114000',
+                '0201001','0201002','0201003','0201004','0201005',
+                '0201007','0201009','0201010','0201011'
+             )
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    )
+    -
+    SUM(
+        CASE 
+            WHEN FIN.RECDESP = -1
+             AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+            THEN FIN.VLRDESDOB
+            ELSE 0
+        END
+    ) AS SALDO
+
+FROM TGFFIN FIN
+WHERE FIN.PROVISAO <> 'S'
+  AND FIN.DHBAIXA >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -3)
+  AND FIN.DHBAIXA <  ADD_MONTHS(TRUNC(SYSDATE, 'MM'),  1)
+
+GROUP BY TRUNC(FIN.DHBAIXA, 'MM')
+ORDER BY MES_REFERENCIA]]>
+      </expression>
+      <metadata>
+        <field name="MES_REFERENCIA" label="Mês Referência" type="D" visible="true" useFooter="false">
+        </field>
+        <field name="TOTAL_RECEITAS" label="Receita" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+        </field>
+        <field name="TOTAL_DESPESAS" label="Despesa" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+        </field>
+        <field name="SALDO" label="Saldo" type="I" visible="true" useFooter="false" mask="R$ #.##0,00">
+        </field>
+      </metadata>
+      <horizontal-axis>
+        <category field="" rotation="0" dropLabel="true">
+          <initView value="first">
+          </initView>
+          <title>Mês Referência</title>
+        </category>
+      </horizontal-axis>
+      <vertical-axis>
+        <linear resultRotation="0" vResizing="true">
+          <mask>R$ #.##0,00</mask>
+          <title>Valor</title>
+        </linear>
+      </vertical-axis>
+      <series>
+        <serie type="column">
+          <xField>$MES_REFERENCIA</xField>
+          <yField>$TOTAL_RECEITAS</yField>
+          <display>
+            <![CDATA[Receita]]>
+          </display>
+          <color>0x009900</color>
+        </serie>
+        <serie type="column">
+          <xField>$MES_REFERENCIA</xField>
+          <yField>$TOTAL_DESPESAS</yField>
+          <display>
+            <![CDATA[Despesa]]>
+          </display>
+          <color>0xCC3300</color>
+        </serie>
+        <serie type="line" circle-intersection="true" show-tip="false">
+          <xField>$MES_REFERENCIA</xField>
+          <yField>$SALDO</yField>
+          <display>
+            <![CDATA[Saldo]]>
+          </display>
+          <color>0x0000CC</color>
+        </serie>
+      </series>
+    </chart>
+  </container>
+</container>
+</level>
+<level id="14C" description="CUBO">
+  <container orientacao="V" tamanhoRelativo="100">
+    <pivot-table id="pvt_14E">
+      <expression type="sql" data-source="MGEDS">
+        <![CDATA[SELECT 
+    FIN.NUFIN,
+    FIN.DHBAIXA,
+    FIN.CODNAT,
+    N.DESCRNAT AS NOME_NATUREZA,
+    FIN.VLRDESDOB,
+    FIN.RECDESP,
+    FIN.PROVISAO,
+    FIN.CODCENCUS,
+    FIN.CODPARC,
+    PAR.NOMEPARC,
+    CUS.DESCRCENCUS,
+    
+    CASE 
+        WHEN FIN.RECDESP = 1  THEN 'RECEITA'
+        WHEN FIN.RECDESP = -1 THEN 'DESPESA'
+        ELSE 'OUTRO'
+    END AS TIPO_MOV
+
+FROM TGFFIN FIN
+INNER JOIN TGFNAT N   ON N.CODNAT   = FIN.CODNAT
+INNER JOIN TSICUS CUS ON CUS.CODCENCUS = FIN.CODCENCUS
+INNER JOIN TGFPAR PAR ON PAR.CODPARC   = FIN.CODPARC
+
+WHERE FIN.DHBAIXA = DATE '2025-12-01'
+  AND FIN.PROVISAO <> 'S'
+  AND (
+        ( FIN.RECDESP = 1
+          AND FIN.CODCENCUS IN (
+                '103000',
+                '114000',
+                '0201001','0201002','0201003','0201004','0201005',
+                '0201007','0201009','0201010','0201011'
+          )
+        )
+        OR
+        ( FIN.RECDESP = -1
+          AND FIN.CODTIPTIT IN (5,72,63,73,77,38,76,74,75)
+        )
+      )]]>
+      </expression>
+      <metadata>
+        <field name="NUFIN" label="NUFIN" type="I" visible="true" useFooter="false">
+        </field>
+        <field name="DHBAIXA" label="Dt. Baixa" type="D" visible="true" useFooter="false">
+        </field>
+        <field name="CODNAT" label="Cod. Nat" type="I" visible="true" useFooter="false">
+        </field>
+        <field name="NOME_NATUREZA" label="Natureza" type="S" visible="true" useFooter="false">
+        </field>
+        <field name="VLRDESDOB" label="Valor" type="F" visible="true" useFooter="false" mask="R$ #.##0,00">
+        </field>
+        <field name="RECDESP" label="RECDESP" type="I" visible="false" useFooter="false">
+        </field>
+        <field name="PROVISAO" label="PROVISAO" type="S" visible="false" useFooter="false">
+        </field>
+        <field name="CODCENCUS" label="C. Result." type="I" visible="true" useFooter="false">
+        </field>
+        <field name="CODPARC" label="Cod. Parc" type="I" visible="true" useFooter="false">
+        </field>
+        <field name="NOMEPARC" label="Parceiro" type="S" visible="true" useFooter="false">
+        </field>
+        <field name="DESCRCENCUS" label="C. Resultado" type="S" visible="true" useFooter="false">
+        </field>
+        <field name="TIPO_MOV" label="Tipo Mov." type="S" visible="true" useFooter="false">
+        </field>
+      </metadata>
+      <initial>
+        <column-ini>
+        </column-ini>
+        <line-ini>
+        </line-ini>
+        <aggregatorName-ini >CONTAGEM</aggregatorName-ini>
+        <rendererName-ini >TABELA</rendererName-ini>
+        <vals-ini>
+        </vals-ini>
+      </initial>
+    </pivot-table>
+  </container>
+</level>
+</gadget>
